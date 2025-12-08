@@ -87,4 +87,7 @@ SELECT * FROM Orders
 SELECT YEAR(OrderDate) AS 'Rok zamówienia', COUNT(OrderID) AS 'Iloœæ zamówieñ' FROM Orders
 	GROUP BY YEAR(OrderDate) ORDER BY 1 DESC
 --18.
---Do zrobienia
+SELECT * FROM Orders
+SELECT YEAR(OrderDate) AS 'Rok', MONTH(OrderDate) AS 'Miesi¹c',
+	COUNT(OrderID) AS 'Liczba zamówieñ' 
+	FROM Orders GROUP BY YEAR(OrderDate), MONTH(OrderDate) ORDER BY 1,2
