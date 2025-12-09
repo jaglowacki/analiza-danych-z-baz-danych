@@ -91,3 +91,32 @@ SELECT * FROM Orders
 SELECT YEAR(OrderDate) AS 'Rok', MONTH(OrderDate) AS 'Miesi¹c',
 	COUNT(OrderID) AS 'Liczba zamówieñ' 
 	FROM Orders GROUP BY YEAR(OrderDate), MONTH(OrderDate) ORDER BY 1,2
+--19.
+SELECT * FROM Products ORDER BY LEN(ProductName)
+SELECT LEN(ProductName) AS 'Liczba znaków w nazwie', ProductName FROM Products 
+SELECT COUNT(ProductName) AS 'Liczba produktów', LEN(ProductName) AS 'Iloœæ zanków'
+	FROM Products GROUP BY LEN(ProductName)
+--20.
+SELECT * FROM Orders
+SELECT DATEDIFF(dd,OrderDate, ShippedDate) AS 'Realizacja dni' FROM Orders
+	WHERE ShippedDate IS NOT NULL
+SELECT EmployeeID, AVG(DATEDIFF(dd,OrderDate, ShippedDate)) AS 'Realizacja œrednio dni',
+	AVG(CAST(ShippedDate-OrderDate AS FLOAT)) AS 'Realizacja dni CAST'
+	FROM Orders WHERE ShippedDate IS NOT NULL GROUP BY EmployeeID ORDER BY 2
+SELECT CAST(ShippedDate-OrderDate AS FLOAT) , * FROM Orders 
+	WHERE ShippedDate IS NOT NULL
+--21.
+SELECT * FROM Orders
+SELECT * FROM Orders WHERE CustomerID LIKE 'LAZYK'
+SELECT CustomerID, COUNT(OrderID) AS 'Ile zamówieñ' FROM Orders GROUP BY CustomerID
+	ORDER BY 2 DESC
+--22.
+SELECT * FROM Orders
+SELECT OrderID, EmployeeID, CAST(ShippedDate-RequiredDate AS INT) AS 'Dni spóŸnienia CAST',
+	DATEDIFF(dd, RequiredDate, ShippedDate) AS 'Dni spóŸnienia'
+	FROM Orders WHERE ShippedDate>RequiredDate AND ShippedDAte IS NOT NULL ORDER BY 2
+SELECT EmployeeID, SUM(DATEDIFF(dd, RequiredDate, ShippedDate)) AS '£¹czna liczba dni spóŸnienia',
+	ROUND(AVG(CAST(ShippedDate-RequiredDate AS FLOAT)),1) AS 'Œrednia iloœæ dni spóŸnienia',
+	ROUND(SUM(CAST(ShippedDate-RequiredDate AS FLOAT))/COUNT(OrderId),1) AS 'Œrednia 2'
+	FROM Orders WHERE ShippedDate>RequiredDate AND ShippedDAte IS NOT NULL 
+	GROUP BY EmployeeID ORDER BY 2 DESC
