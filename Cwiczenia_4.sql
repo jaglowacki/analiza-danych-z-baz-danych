@@ -79,3 +79,54 @@ FROM Employees E JOIN Orders O on E.EmployeeID = O.EmployeeID
 JOIN [Order Details] OD on OD.OrderID = O.OrderID
 GROUP BY E.LastName, E.FirstName, O.EmployeeID
 ORDER BY SUM(od.unitprice* od.quantity) desc
+
+--8.
+SELECT * FROM Customers
+SELECT * FROM Shippers
+SELECT * FROM Orders
+
+SELECT DISTINCT C.CompanyName, C.Phone FROM Customers C
+JOIN Orders O ON C.CustomerID=O.CustomerID
+JOIN Shippers S ON O.ShipVia=S.ShipperID
+WHERE YEAR(O.ShippedDate)=1997 AND S.CompanyName='United Package'
+ORDER BY 1
+
+SELECT DISTINCT Customers.CompanyName, Customers.Phone
+FROM Customers
+JOIN Orders ON Customers.CustomerID = Orders.CustomerID
+JOIN Shippers ON Shippers.ShipperID = Orders.ShipVia
+WHERE YEAR(Orders.ShippedDate) = 1997 AND Shippers.CompanyName LIKE 'United Package'
+
+--9.
+SELECT * FROM Customers
+SELECT * FROM Categories
+
+SELECT DISTINCT C.CompanyName, C.Phone FROM Customers C
+JOIN Orders O ON C.CustomerID=O.CustomerID
+JOIN [Order Details] OD ON O.OrderID=OD.OrderID
+JOIN Products P ON OD.ProductID=P.ProductID
+JOIN Categories CA ON P.CategoryID=CA.CategoryID
+WHERE CA.CategoryName LIKE 'Confections'
+
+SELECT DISTINCT CompanyName, Phone
+FROM Customers
+JOIN Orders ON Customers.CustomerID = Orders.CustomerID
+JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+JOIN Products ON Products.ProductID = [Order Details].ProductID
+JOIN Categories ON Categories.CategoryID = Products.CategoryID
+WHERE CategoryName = 'Confections'
+
+--10.
+SELECT * FROM Categories
+SELECT * FROM Products ORDER BY CategoryID
+
+SELECT CA.CategoryName, SUM(P.UnitsOnOrder) AS '£¹czna liczba zam owionych jednostek' 
+FROM Categories CA
+JOIN Products P ON CA.CategoryID=P.CategoryID
+GROUP BY CA.CategoryName ORDER BY 2 DESC
+
+SELECT Categories.CategoryName, SUM(Products.UnitsOnOrder) AS Suma_Zamowionych_Jednostek
+FROM Categories
+JOIN Products ON Categories.CategoryID = Products.CategoryID
+GROUP BY Categories.CategoryName ORDER BY 2 DESC
+
