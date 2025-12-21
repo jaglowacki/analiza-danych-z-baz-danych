@@ -130,3 +130,30 @@ FROM Categories
 JOIN Products ON Categories.CategoryID = Products.CategoryID
 GROUP BY Categories.CategoryName ORDER BY 2 DESC
 
+--11.
+SELECT * FROM Customers
+SELECT * FROM Orders
+SELECT * FROM Products
+
+SELECT C.CustomerID, C.CompanyName, C.City, P.QuantityPerUnit FROM Customers C
+JOIN Orders O ON C.CustomerID=O.CustomerID
+JOIN [Order Details] OD ON O.OrderID=OD.OrderID
+JOIN Products P ON OD.ProductID=P.ProductID
+WHERE C.City LIKE 'London' AND P.QuantityPerUnit LIKE '%box%'
+
+--12.
+SELECT * FROM Orders
+SELECT * FROM [Order Details]
+SELECT * FROM Products
+
+SELECT O.OrderID, SUM(OD.Quantity) AS '£¹czna liczba zam.jed.' FROM Orders O
+JOIN [Order Details] OD ON O.OrderID=OD.OrderID
+GROUP BY O.OrderID
+ORDER BY 2 DESC
+
+--13.
+SELECT O.OrderID, SUM(OD.Quantity) AS '£¹czna liczba zam.jed.' FROM Orders O
+JOIN [Order Details] OD ON O.OrderID=OD.OrderID
+GROUP BY O.OrderID HAVING SUM(OD.Quantity)>250
+ORDER BY 2 DESC
+
