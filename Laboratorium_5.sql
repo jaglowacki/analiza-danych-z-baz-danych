@@ -17,3 +17,6 @@ when CategoryID = 4 then 'Nabia³'
 else 'Inny'
 END AS NAZWA_POLSKA
 FROM Categories;
+
+SELECT
+IIF(10 > 5, 'TRUE', 'FALSE') AS Result;
