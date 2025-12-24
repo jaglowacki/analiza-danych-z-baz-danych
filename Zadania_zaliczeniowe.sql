@@ -66,17 +66,17 @@ GROUP BY YEAR(BirthDate)
 --Wyœwietl identyfikator pracownika, liczbê zamówieñ.
 
 --Posortowane dodatkowo od pracowników z najwiêksz¹ liczb¹ zamówieñ w tym okresie
-SELECT EmployeeID, COUNT(EmployeeID) AS 'Liczba zamówieñ' FROM Orders
+SELECT EmployeeID, COUNT(OrderID) AS 'Liczba zamówieñ' FROM Orders
 WHERE YEAR(OrderDate)=1996 AND DATEPART(qq,OrderDate)=3
-GROUP BY EmployeeID HAVING COUNT(EmployeeID)>5 ORDER BY 2 DESC
+GROUP BY EmployeeID HAVING COUNT(OrderID)>5 ORDER BY 2 DESC
 
 --Dodatkowo uzupe³nione o imiê i nazwisko pracownika
 SELECT O.EmployeeID,E.LastName+' '+E.FirstName AS 'Nazwisko i imiê',
-COUNT(O.EmployeeID) AS 'Liczba zamówieñ'
+COUNT(O.OrderID) AS 'Liczba zamówieñ'
 FROM Orders O
 JOIN Employees E ON O.EmployeeID=E.EmployeeID
 WHERE YEAR(O.OrderDate)=1996 AND DATEPART(qq,O.OrderDate)=3
-GROUP BY O.EmployeeID,E.LastName+' '+E.FirstName HAVING COUNT(O.EmployeeID)>5 ORDER BY 3 DESC
+GROUP BY O.EmployeeID,E.LastName+' '+E.FirstName HAVING COUNT(O.OrderID)>5 ORDER BY 3 DESC
 
 --Zad. 7
 --Ile zamówieñ zrealizowali poszczególni przewoŸnicy i ile ³¹cznie za nie dostali w roku 1997.
@@ -93,3 +93,49 @@ COUNT(O.OrderID) AS 'Liczba zmamówieñ', SUM(O.Freight) AS 'Koszt przewozu' FROM 
 JOIN Shippers S ON O.ShipVia=S.ShipperID
 WHERE YEAR(ShippedDate)=1997 AND ShippedDate IS NOT NULL
 GROUP BY ShipVia, S.CompanyName
+
+--Zad. 8
+--Podaj klientów (z nazwy), którzy w 1997 roku z³o¿yli przynajmniej 3 zamówienia na produkty w s³oikach.
+--Nazwy kolumn w kolejnoœci NAZWA_KLIENTA, LICZBA_ZAM
+
+SELECT C.CompanyName AS 'NAZWA_KLIENTA', COUNT(DISTINCT O.OrderID) AS 'LICZBA_ZAM' FROM Customers C
+JOIN Orders O ON C.CustomerID=O.CustomerID
+JOIN [Order Details] OD ON O.OrderID=OD.OrderID
+JOIN Products P ON OD.ProductID=P.ProductID
+WHERE YEAR(O.OrderDate)=1997 AND (P.QuantityPerUnit LIKE '%jar%')
+GROUP BY C.CustomerID, C.CompanyName HAVING COUNT(DISTINCT O.OrderID)>=3
+
+--Zad. 9
+--ZnajdŸ wszystkich klientów pochodz¹cych z Niemiec, których ³¹czna wartoœæ zakupionego towaru jest wiêksza ni¿ 5000.
+--Posortuj listê alfabetycznie wed³ug klientów.
+--Wyœwietl nazwy kolumn w kolejnoœci: NAZWA_KLIENTA, WARTOŒÆ_ZAM
+
+SELECT C.CompanyName AS 'NAZWA_KLIENTA', SUM(OD.UnitPrice*OD.Quantity) AS 'WARTOŒÆ_ZAM' 
+FROM Customers C
+JOIN Orders O ON C.CustomerID=O.CustomerID
+JOIN [Order Details] OD ON O.OrderID=OD.OrderID 
+WHERE C.Country='Germany'
+GROUP BY C.CustomerID, C.CompanyName HAVING SUM(OD.UnitPrice*OD.Quantity)>5000
+ORDER BY C.CompanyName
+
+--Zad. 10
+--Podaæ pracowników oraz liczbê zamówieñ zrealizowanych w terminie, w latach 1997-1998
+--Dane wyœwietl w kolejnoœci od najwiêkszej liczby zamówieñ.
+--Nazwy kolumn w kolejnoœci IMIE, NAZWISKO, LICZBA_ZAM
+
+SELECT E.FirstName AS 'IMIE', E.LastName AS 'NAZWISKO', COUNT(O.OrderID) AS 'LICZBA_ZAM'
+FROM Employees E
+JOIN Orders O ON E.EmployeeID=O.EmployeeID
+WHERE O.ShippedDate IS NOT NULL AND YEAR(O.ShippedDate) IN (1997,1998) AND (O.ShippedDate<=O.RequiredDate)
+GROUP BY E.EmployeeID, E.FirstName, E.LastName
+ORDER BY LICZBA_ZAM DESC
+
+--Zad. 11   
+--ZnajdŸ klienta, który nigdy niczego nie kupi³, sprawdzaj¹c identyfikator klienta w tabeli zamówieñ. 
+
+SELECT CustomerID, CompanyName FROM Customers 
+WHERE CustomerID NOT IN (SELECT CustomerID FROM Orders WHERE CustomerID IS NOT NULL)
+
+SELECT C.CustomerID, CompanyName FROM Customers C
+LEFT JOIN Orders O ON (C.CustomerID=O.CustomerID)
+WHERE O.CustomerID IS NULL
