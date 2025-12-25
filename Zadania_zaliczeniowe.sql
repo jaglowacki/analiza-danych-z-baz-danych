@@ -137,5 +137,7 @@ SELECT CustomerID, CompanyName FROM Customers
 WHERE CustomerID NOT IN (SELECT CustomerID FROM Orders WHERE CustomerID IS NOT NULL)
 
 SELECT C.CustomerID, CompanyName FROM Customers C
-LEFT JOIN Orders O ON (C.CustomerID=O.CustomerID)
+LEFT JOIN Orders O ON C.CustomerID=O.CustomerID
 WHERE O.CustomerID IS NULL
+
+
