@@ -232,3 +232,21 @@ WHERE P.Discontinued=1 AND OD.UnitPrice>=25
 GROUP BY P.ProductName, P.Discontinued, OD.ProductID
 ORDER BY 'Dostêpnoœæ' DESC, 'Cena maksymalna' DESC
 
+--Zad. 14
+--Podaj nazwy produktów, które nie by³y sprzedawane latem (od czerwca do sierpnia).
+
+SELECT DISTINCT P.ProductName FROM Products P 
+JOIN [Order Details] OD ON P.ProductID=OD.ProductID
+JOIN Orders O ON OD.OrderID=O.OrderID
+WHERE P.ProductID NOT IN 
+(SELECT DISTINCT P.ProductID FROM Products P 
+JOIN [Order Details] OD ON P.ProductID=OD.ProductID
+JOIN Orders O ON OD.OrderID=O.OrderID
+WHERE MONTH(O.OrderDate) IN (6,7,8))
+
+--Zad. 15
+--Wyœwietl informacje o pracownikach, którzy zostali zatrudnieni po zatrudnieniu pracownika Steven Buchanan.
+
+SELECT * FROM Employees
+WHERE HireDate>(SELECT HireDate FROM Employees WHERE FirstName='Steven' AND LastName='Buchanan')
+
