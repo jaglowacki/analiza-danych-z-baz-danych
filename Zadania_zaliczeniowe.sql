@@ -140,4 +140,95 @@ SELECT C.CustomerID, CompanyName FROM Customers C
 LEFT JOIN Orders O ON C.CustomerID=O.CustomerID
 WHERE O.CustomerID IS NULL
 
+--Zad. 12
+--Wyœwietl informacje o produktach, gdzie rabat dla kategorii:
+--Condiments wynosi 5%,
+--Seafood wynosi 8%,
+--Produce wynosi 15%,
+--a dla pozosta³ych kategorii wynosi 4%
+
+--Wyœwietl kolumny w kolejnoœci: 
+--kategoria, 
+--nazwa produktu, 
+--cena przed rabatem (UnitPrice), 
+--rabat w procentach (4, 5, 8 lub 15%), 
+--cena po rabacie (cena wyliczona).
+
+--Wyjaœnienie:
+--*Cena przed rabatem to wartoœæ UnitPrice,
+--*Cena po rabacie to wartoœæ UnitPrice obni¿ona o wartoœæ 4, 5, 8 lub 15%   dla odpowiedniej kategorii - trzeba napisaæ odpowiednie dzia³anie, aby cena po rabacie zosta³a wyliczona,
+--*Rabat w procentach to odpowiednio 4, 5, 8 lub 15%.
+
+SELECT * FROM Categories C
+JOIN Products P ON C.CategoryID=P.CategoryID 
+ORDER BY CategoryName
+
+SELECT C.CategoryName, P.ProductName, P.UnitPrice,
+CASE C.CategoryName
+WHEN 'Condiments' THEN 5
+WHEN 'Seafood' THEN 8
+WHEN 'Produce' THEN 15
+ELSE 4
+END AS 'Rabat %',
+CASE C.CategoryName
+WHEN 'Condiments' THEN CAST(P.UnitPrice*(1-0.05) AS NUMERIC(5,2))
+WHEN 'Seafood' THEN CAST(P.UnitPrice*(1-0.08) AS NUMERIC(5,2))
+WHEN 'Produce' THEN CAST(P.UnitPrice*(1-0.15) AS NUMERIC(5,2))
+ELSE CAST(P.UnitPrice*(1-0.04) AS NUMERIC(5,2))
+END AS 'Cana po rabacie'
+FROM Categories C
+JOIN Products P ON C.CategoryID=P.CategoryID 
+
+--Zad. 13
+--Wyœwietl (z nazwy) produkty niewycofane, gdy ich maksymalne ceny,
+--po których zosta³y sprzedane s¹ równe przynajmniej 40$
+--oraz produkty wycofane, gdy ich maksymalne ceny, po których zosta³y sprzedane s¹ wiêksze ni¿ 25$.
+--Posortuj wed³ug informacji o wycofaniu i cen malej¹co.
+
+--Wyœwietl trzy kolumny:
+--1) nazwa produktu
+--2) informacja o wycofaniu
+--3) cena maksymalna
+
+--Wyjaœnienie:
+--*Discontinued z tabeli Products - informacja o wycofaniu - wartoœæ 0 lub 1
+--*maksymalne ceny, po których zosta³y sprzedane trzeba wybraæ z tabeli Orders Details,
+--gdy¿ tylko tam s¹ ró¿ne ceny dla danego produktu.
+--W tabeli Products zawsze jest jedna cena dla danego produktu.
+
+SELECT P.ProductName, P.Discontinued, MAX(OD.UnitPrice) AS 'Cena maksymalna'
+FROM Products P
+JOIN [Order Details] OD ON P.ProductID=OD.ProductID 
+WHERE P.Discontinued=0 AND OD.UnitPrice>=40
+GROUP BY P.ProductName, P.Discontinued, OD.ProductID
+UNION ALL
+SELECT P.ProductName, P.Discontinued, MAX(OD.UnitPrice) AS 'Cena maksymalna'
+FROM Products P
+JOIN [Order Details] OD ON P.ProductID=OD.ProductID 
+WHERE P.Discontinued=1 AND OD.UnitPrice>=25
+GROUP BY P.ProductName, P.Discontinued, OD.ProductID
+ORDER BY P.Discontinued DESC, 'Cena maksymalna' DESC
+
+SELECT P.ProductName, 
+CASE P.Discontinued
+WHEN 0 THEN 'Dostêpny'
+ELSE 'Wycofany'
+END AS 'Dostêpnoœæ', 
+MAX(OD.UnitPrice) AS 'Cena maksymalna'
+FROM Products P
+JOIN [Order Details] OD ON P.ProductID=OD.ProductID 
+WHERE P.Discontinued=0 AND OD.UnitPrice>=40
+GROUP BY P.ProductName, P.Discontinued, OD.ProductID
+UNION ALL
+SELECT P.ProductName,
+CASE P.Discontinued
+WHEN 0 THEN 'Dostêpny'
+ELSE 'Wycofany'
+END AS 'Dostêpnoœæ', 
+MAX(OD.UnitPrice) AS 'Cena maksymalna'
+FROM Products P
+JOIN [Order Details] OD ON P.ProductID=OD.ProductID 
+WHERE P.Discontinued=1 AND OD.UnitPrice>=25
+GROUP BY P.ProductName, P.Discontinued, OD.ProductID
+ORDER BY 'Dostêpnoœæ' DESC, 'Cena maksymalna' DESC
 
