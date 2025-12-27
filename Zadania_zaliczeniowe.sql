@@ -84,15 +84,15 @@ GROUP BY O.EmployeeID,E.LastName+' '+E.FirstName HAVING COUNT(O.OrderID)>5 ORDER
 
 --Zak³adam ¿e przewoŸnik zrealizowa³ zamówienie, gdy zasta³o ono wys³ane (ShippedDate is Not Null)
 SELECT ShipVia, COUNT(OrderID) AS 'Liczba zmamówieñ', SUM(Freight) AS 'Koszt przewozu' FROM Orders
-WHERE YEAR(ShippedDate)=1997 AND ShippedDate IS NOT NULL
+WHERE ShippedDate IS NOT NULL AND YEAR(ShippedDate)=1997
 GROUP BY ShipVia
 
 --Dodatkowo z nazw¹ dostawcy
 SELECT O.ShipVia, S.CompanyName, 
 COUNT(O.OrderID) AS 'Liczba zmamówieñ', SUM(O.Freight) AS 'Koszt przewozu' FROM Orders O
 JOIN Shippers S ON O.ShipVia=S.ShipperID
-WHERE YEAR(ShippedDate)=1997 AND ShippedDate IS NOT NULL
-GROUP BY ShipVia, S.CompanyName
+WHERE ShippedDate IS NOT NULL AND YEAR(ShippedDate)=1997
+GROUP BY O.ShipVia, S.CompanyName
 
 --Zad. 8
 --Podaj klientów (z nazwy), którzy w 1997 roku z³o¿yli przynajmniej 3 zamówienia na produkty w s³oikach.
@@ -159,10 +159,6 @@ WHERE O.CustomerID IS NULL
 --*Cena po rabacie to wartoœæ UnitPrice obni¿ona o wartoœæ 4, 5, 8 lub 15%   dla odpowiedniej kategorii - trzeba napisaæ odpowiednie dzia³anie, aby cena po rabacie zosta³a wyliczona,
 --*Rabat w procentach to odpowiednio 4, 5, 8 lub 15%.
 
-SELECT * FROM Categories C
-JOIN Products P ON C.CategoryID=P.CategoryID 
-ORDER BY CategoryName
-
 SELECT C.CategoryName, P.ProductName, P.UnitPrice,
 CASE C.CategoryName
 WHEN 'Condiments' THEN 5
@@ -175,7 +171,7 @@ WHEN 'Condiments' THEN CAST(P.UnitPrice*(1-0.05) AS NUMERIC(5,2))
 WHEN 'Seafood' THEN CAST(P.UnitPrice*(1-0.08) AS NUMERIC(5,2))
 WHEN 'Produce' THEN CAST(P.UnitPrice*(1-0.15) AS NUMERIC(5,2))
 ELSE CAST(P.UnitPrice*(1-0.04) AS NUMERIC(5,2))
-END AS 'Cana po rabacie'
+END AS 'Cena po rabacie'
 FROM Categories C
 JOIN Products P ON C.CategoryID=P.CategoryID 
 
@@ -206,8 +202,8 @@ SELECT P.ProductName, P.Discontinued, MAX(OD.UnitPrice) AS 'Cena maksymalna'
 FROM Products P
 JOIN [Order Details] OD ON P.ProductID=OD.ProductID 
 WHERE P.Discontinued=1 AND OD.UnitPrice>=25
-GROUP BY P.ProductName, P.Discontinued, OD.ProductID
-ORDER BY P.Discontinued DESC, 'Cena maksymalna' DESC
+GROUP BY P.ProductID, P.ProductName, P.Discontinued
+ORDER BY P.Discontinued DESC, [Cena maksymalna] DESC
 
 SELECT P.ProductName, 
 CASE P.Discontinued
@@ -229,8 +225,8 @@ MAX(OD.UnitPrice) AS 'Cena maksymalna'
 FROM Products P
 JOIN [Order Details] OD ON P.ProductID=OD.ProductID 
 WHERE P.Discontinued=1 AND OD.UnitPrice>=25
-GROUP BY P.ProductName, P.Discontinued, OD.ProductID
-ORDER BY 'Dostêpnoœæ' DESC, 'Cena maksymalna' DESC
+GROUP BY P.ProductID, P.ProductName, P.Discontinued
+ORDER BY [Dostêpnoœæ] DESC, [Cena maksymalna] DESC
 
 --Zad. 14
 --Podaj nazwy produktów, które nie by³y sprzedawane latem (od czerwca do sierpnia).
