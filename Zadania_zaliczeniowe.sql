@@ -250,3 +250,47 @@ WHERE MONTH(O.OrderDate) IN (6,7,8))
 SELECT * FROM Employees
 WHERE HireDate>(SELECT HireDate FROM Employees WHERE FirstName='Steven' AND LastName='Buchanan')
 
+--Zad. 16
+--Podaj klientów, którzy z³o¿yli kolejne zamówienia po otrzymaniu dostawy z opóŸnieniem.  
+
+SELECT DISTINCT OA.CustomerID, C.CompanyName FROM Orders OA
+JOIN Orders OB ON
+OA.CustomerID=OB.CustomerID
+AND OB.OrderDate>OA.ShippedDate
+JOIN Customers C ON OA.CustomerID=C.CustomerID
+WHERE OA.ShippedDate>OA.RequiredDate
+
+--Zad.17
+--Ile i jakiego rodzaju zamówieñ z³o¿yli poszczególni klienci?
+--Utwórz odpowiedni widok.
+
+--Rodzaje zamówieñ: ma³e - wartoœæ<500,
+--œrednie - wartoœæ<1000,
+--reszta to du¿e.
+
+--Wyœwietl nazwê klienta, rodzaj zamówienia, liczbê zamówieñ.
+--Na koniec nale¿y usun¹æ widok odpowiednim poleceniem.
+
+CREATE VIEW Statystyka_Sprzedazy AS
+SELECT C.CustomerID,C.CompanyName,
+SUM(OD.UnitPrice*OD.Quantity) AS 'Wartoœæ zamówienia',
+CASE
+WHEN SUM(OD.UnitPrice*OD.Quantity)<500 THEN 'ma³e'
+WHEN SUM(OD.UnitPrice*OD.Quantity) BETWEEN 500 AND 1000 THEN 'œrednie'
+ELSE 'du¿e'
+END AS 'Rodzaj zamówienia'
+FROM Customers C
+JOIN Orders O ON C.CustomerID=O.CustomerID
+JOIN [Order Details] OD ON O.OrderID=OD.OrderID 
+GROUP BY OD.OrderID, C.CustomerID, C.CompanyName
+
+SELECT * FROM [Statystyka_Sprzedazy] ORDER BY 1
+
+--tutaj w³aœciwe rozwi¹zanie zadania:
+SELECT CompanyName, [Rodzaj zamówienia],
+COUNT(CustomerID) AS 'Liczba zamówieñ'
+FROM Statystyka_Sprzedazy
+GROUP BY [Rodzaj zamówienia],CompanyName
+ORDER BY CompanyName, [Rodzaj zamówienia]
+
+DROP VIEW Statystyka_Sprzedazy
